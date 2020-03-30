@@ -190,7 +190,7 @@ plot(cv.out)
 
 ```
 
-```{r lambda}
+```{r lambda, echo=TRUE, eval=FALSE}
 # min value of lambda
 lambda_min <- cv.out$lambda.min
 
@@ -208,6 +208,10 @@ Based on the lasso regression we arrive at the lambda_min that we need to use fo
 
 Features which we need not include in the model have a coef of zero.
 
+<p align="center">
+![coef](/post/2020-03-29-lasso-logistic-regression_files/coef.jpg){width=200px height=600px}
+</p>
+
 We write the coefficients to a csv file.
 
 The file is saved to the working directory.
@@ -222,7 +226,7 @@ $$ Odds\: ratio\: = exp(coef(LR\: model)) $$
 
 The odds ratio is a very unique advantage of probability based models like logisticc regression.  The odds ratio is used to understand the influence of various x variables in classification.
 
-```{r odds-ratio}
+```{r odds-ratio, echo=TRUE, eval=FALSE}
 # Find the best lambda using cross-validation
 set.seed(123)
 cv.lasso <- cv.glmnet(x, y, alpha = 1, family = "binomial")
@@ -243,10 +247,17 @@ Again, we write to a csv file for better understanding.
  
 If the csv file for odds ratio is sorted based on the odds ratio (column B) in descending order, we can see the variables with the highest odds ratio
 
+<p align="center">
+![odds-ratio](/post/2020-03-29-lasso-logistic-regression_files/odds-ratio.jpg){width=200px height=600px}
+</p>
 The odds ratio is interpred as follows: A product which has "compliment" in its review has 5.61 times more odds to be recommended compared to a product review which does not have the word.  
+
 
 We can examine the logreg_coef.csv file to understand variables with negative coefficients.
 
+<p align="center">
+![dissapoint](/post/2020-03-29-lasso-logistic-regression_files/dissapoint.jpg){width=200px height=600px}
+</p>
 The term "disappoint" has a negative coefficient indicating that, if the term is present in the review, the probability the product will be recommended is very low.
 
 The 3 classification models throw similar insights in terms of what terms are used by happy customers who will recommend a product vs those use by unhappy customers.
