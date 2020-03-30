@@ -1,0 +1,750 @@
+---
+title: Predict the product recommended
+author: Scott Miner
+date: '2020-03-29'
+slug: lasso-logistic-regression
+categories:
+  - Text-Mining
+tags: []
+---
+
+
+
+<div id="feature-extraction" class="section level4">
+<h4>Feature Extraction</h4>
+<p>We will try 3 of the most popular classification algorithms – CART, Random forest and Lasso logistic regression.</p>
+<pre class="r"><code>## Load the required libraries
+library(irlba)
+library(e1071)
+library(caret)
+library(randomForest)
+library(rpart)
+library(rpart.plot)
+library(ggplot2)
+library(SnowballC)
+library(RColorBrewer)
+library(wordcloud)
+library(biclust)
+library(igraph)
+library(fpc)
+library(Rcampdf)</code></pre>
+</div>
+<div id="tokenisation" class="section level4">
+<h4>Tokenisation</h4>
+<p>Tokenisation is the process of decomposing text into distinct pieces or tokens.</p>
+<p>Once tokenisation is done, it is possible to construct a dataframe where each row represents a document and each column represents a token and each cell gives the count of the token for a document.</p>
+<p>This is the DTM that we learnt in the previous section.</p>
+<pre class="r"><code>review=read.csv(&quot;~/OneDrive/Documents/datasets/womens-ecommerce-clothing-reviews/Womens Clothing E-Commerce Reviews.csv&quot;, stringsAsFactors = FALSE)
+
+# Tokenize description
+reviewtokens=tokens(review$Review.Text,what=&quot;word&quot;,
+                    remove_numbers=TRUE,
+                    remove_punct=TRUE,
+                    remove_symbols=TRUE,
+                    split_hyphens=TRUE)
+
+# Lowercase the tokens
+reviewtokens=tokens_tolower(reviewtokens)
+
+# remove stop words and unnecessary words
+rmwords &lt;- c(&quot;dress&quot;, &quot;etc&quot;, &quot;also&quot;, &quot;xxs&quot;, &quot;xs&quot;, &quot;s&quot;)
+reviewtokens=tokens_select(reviewtokens, stopwords(),selection = &quot;remove&quot;)
+reviewtokens=tokens_remove(reviewtokens,rmwords)
+
+# Stemming tokens
+reviewtokens=tokens_wordstem(reviewtokens,language = &quot;english&quot;)
+reviewtokens=tokens_ngrams(reviewtokens,n=1:2)</code></pre>
+<p>Tokens are now converted to a document frequency matrix and treated for sparsity.</p>
+<pre class="r"><code>reviewtokensdfm=dfm(reviewtokens,tolower = FALSE)
+
+# Remove sparsity
+reviewSparse &lt;- convert(reviewtokensdfm, &quot;tm&quot;)
+tm::removeSparseTerms(reviewSparse, 0.7)</code></pre>
+<pre><code>## &lt;&lt;DocumentTermMatrix (documents: 23486, terms: 4)&gt;&gt;
+## Non-/sparse entries: 33027/60917
+## Sparsity           : 65%
+## Maximal term length: 4
+## Weighting          : term frequency (tf)</code></pre>
+<pre class="r"><code># Create the dfm
+dfm_trim(reviewtokensdfm, min_docfreq = 0.3)</code></pre>
+<pre><code>## Document-feature matrix of: 23,486 documents, 238,120 features (100.0% sparse).
+##        features
+## docs    absolut wonder silki sexi comfort absolut_wonder wonder_silki
+##   text1       1      1     1    1       1              1            1
+##   text2       0      0     0    0       0              0            0
+##   text3       0      0     0    0       1              0            0
+##   text4       0      0     0    0       0              0            0
+##   text5       0      0     0    0       0              0            0
+##   text6       0      0     0    0       0              0            0
+##        features
+## docs    silki_sexi sexi_comfort love
+##   text1          1            1    0
+##   text2          0            0    2
+##   text3          0            0    0
+##   text4          0            0    3
+##   text5          0            0    1
+##   text6          0            0    2
+## [ reached max_ndoc ... 23,480 more documents, reached max_nfeat ... 238,110 more features ]</code></pre>
+<pre class="r"><code>x=dfm_trim(reviewtokensdfm, sparsity = 0.98)</code></pre>
+</div>
+<div id="step6-building-the-classification-models" class="section level4">
+<h4>STEP6 Building the Classification Models</h4>
+<p>We now have the pre-processed, treated and ready to be used for classification - dataframe.</p>
+<p>The following steps are carried out:</p>
+<ol style="list-style-type: decimal">
+<li>Convert the dfm into a dataframe</li>
+<li>Add the “Y” variable to the converted dataframe</li>
+<li>Cleanup the column names so that they are compatible with r</li>
+<li>Remove the original review.text column since we already have this as converted columns.</li>
+</ol>
+<pre class="r"><code>## Setup a dataframe with features
+df=convert(x,to=&quot;data.frame&quot;)
+
+##Add the Y variable Recommend.IND
+reviewtokensdf=cbind(review$Recommended.IND,df)
+head(reviewtokensdf)</code></pre>
+<pre><code>##   review$Recommended.IND document absolut wonder comfort love pretti find store
+## 1                      1    text1       1      1       1    0      0    0     0
+## 2                      1    text2       0      0       0    2      1    1     1
+## 3                      0    text3       0      0       1    0      0    0     0
+## 4                      1    text4       0      0       0    3      0    0     0
+## 5                      1    text5       0      0       0    1      0    0     0
+## 6                      0    text6       0      0       0    2      1    0     0
+##   glad order onlin petit bought length hit just littl knee definit true high
+## 1    0     0     0     0      0      0   0    0     0    0       0    0    0
+## 2    1     1     1     3      1      1   1    1     1    1       1    1    0
+## 3    0     1     0     2      0      0   0    1     0    0       0    0    1
+## 4    0     0     0     0      0      0   0    0     0    0       0    0    0
+## 5    0     0     0     0      0      1   0    0     0    0       0    0    0
+## 6    0     0     0     1      0      0   0    2     0    0       0    0    0
+##   hope realli want work small usual size found medium overal top fit nice
+## 1    0      0    0    0     0     0    0     0      0      0   0   0    0
+## 2    0      0    0    0     0     0    0     0      0      0   0   0    0
+## 3    1      1    1    1     3     1    1     1      1      1   1   1    1
+## 4    0      0    0    0     0     0    0     0      0      0   0   0    0
+## 5    0      0    0    0     0     0    0     0      0      0   0   0    0
+## 6    0      0    0    1     1     1    0     0      0      0   0   0    0
+##   bottom tight layer well fall design wish tie around waist usual_size flat
+## 1      0     0     0    0    0      0    0   0      0     0          0    0
+## 2      0     0     0    0    0      0    0   0      0     0          0    0
+## 3      1     1     3    0    0      1    0   0      0     0          1    0
+## 4      0     0     0    0    0      0    0   0      0     0          0    0
+## 5      0     0     0    1    0      0    0   1      0     0          0    0
+## 6      0     0     0    0    0      0    0   0      0     0          0    0
+##   style like model get flatter look color fabric great qualiti person happi fun
+## 1     0    0     0   0       0    0     0      0     0       0      0     0   0
+## 2     0    0     0   0       0    0     0      0     0       0      0     0   0
+## 3     0    0     0   0       0    0     0      0     0       0      0     0   0
+## 4     0    0     0   1       0    0     0      0     1       0      0     0   1
+## 5     0    0     0   0       1    0     0      0     0       0      0     0   0
+## 6     1    0     0   0       0    0     1      0     0       0      0     0   0
+##   everi time wear compliment shirt front perfect leg pair jean wash show better
+## 1     0    0    0          0     0     0       0   0    0    0    0    0      0
+## 2     0    0    0          0     0     0       0   0    0    0    0    0      0
+## 3     0    0    0          0     0     0       0   0    0    0    0    0      0
+## 4     1    1    1          1     0     0       0   0    0    0    0    0      0
+## 5     0    0    1          0     2     1       1   1    1    0    0    0      0
+## 6     0    0    1          0     0     0       0   0    0    0    0    0      0
+##   navi almost someth white red loos dress one tall lot skirt long full take
+## 1    0      0      0     0   0    0     0   0    0   0     0    0    0    0
+## 2    0      0      0     0   0    0     0   0    0   0     0    0    0    0
+## 3    0      0      0     0   0    0     0   0    0   0     0    0    0    0
+## 4    0      0      0     0   0    0     0   0    0   0     0    0    0    0
+## 5    0      0      0     0   0    0     0   0    0   0     0    0    0    0
+## 6    0      0      0     0   0    0     1   1    1   1     2    1    1    1
+##   return sure usual_wear issu review good versatil worn short make underneath
+## 1      0    0          0    0      0    0        0    0     0    0          0
+## 2      0    0          0    0      0    0        0    0     0    0          0
+## 3      0    0          0    0      0    0        0    0     0    0          0
+## 4      0    0          0    0      0    0        0    0     0    0          0
+## 5      0    0          0    0      0    0        0    0     0    0          0
+## 6      1    0          1    0      0    0        0    0     0    0          0
+##   love_color see went gorgeous tri decid though said everyth pant look_like
+## 1          0   0    0        0   0     0      0    0       0    0         0
+## 2          0   0    0        0   0     0      0    0       0    0         0
+## 3          0   0    0        0   0     0      0    0       0    0         0
+## 4          0   0    0        0   0     0      0    0       0    0         0
+## 5          0   0    0        0   0     0      0    0       0    0         0
+## 6          1   0    0        0   0     0      0    0       0    0         0
+##   mani end worth got quit buy feel think alway use feel_like bit big sleev go
+## 1    0   0     0   0    0   0    0     0     0   0         0   0   0     0  0
+## 2    0   0     0   0    0   0    0     0     0   0         0   0   0     0  0
+## 3    0   0     0   0    0   0    0     0     0   0         0   0   0     0  0
+## 4    0   0     0   0    0   0    0     0     0   0         0   0   0     0  0
+## 5    0   0     0   0    0   0    0     0     0   0         0   0   0     0  0
+## 6    0   0     0   0    0   0    0     0     0   0         0   0   0     0  0
+##   sinc light pictur even huge sweater beauti will back tee soft thin summer
+## 1    0     0      0    0    0       0      0    0    0   0    0    0      0
+## 2    0     0      0    0    0       0      0    0    0   0    0    0      0
+## 3    0     0      0    0    0       0      0    0    0   0    0    0      0
+## 4    0     0      0    0    0       0      0    0    0   0    0    0      0
+## 5    0     0      0    0    0       0      0    0    0   0    0    0      0
+## 6    0     0      0    0    0       0      0    0    0   0    0    0      0
+##   area run larger normal snug bust say feminin retail fine room sheer bra
+## 1    0   0      0      0    0    0   0       0      0    0    0     0   0
+## 2    0   0      0      0    0    0   0       0      0    0    0     0   0
+## 3    0   0      0      0    0    0   0       0      0    0    0     0   0
+## 4    0   0      0      0    0    0   0       0      0    0    0     0   0
+## 5    0   0      0      0    0    0   0       0      0    0    0     0   0
+## 6    0   0      0      0    0    0   0       0      0    0    0     0   0
+##   easili order_size lbs typic regular smaller longer fit_perfect shape super
+## 1      0          0   0     0       0       0      0           0     0     0
+## 2      0          0   0     0       0       0      0           0     0     0
+## 3      0          0   0     0       0       0      0           0     0     0
+## 4      0          0   0     0       0       0      0           0     0     0
+## 5      0          0   0     0       0       0      0           0     0     0
+## 6      0          0   0     0       0       0      0           0     0     0
+##   flowi materi spring pull disappoint first year look_great right lace blue
+## 1     0      0      0    0          0     0    0          0     0    0    0
+## 2     0      0      0    0          0     0    0          0     0    0    0
+## 3     0      0      0    0          0     0    0          0     0    0    0
+## 4     0      0      0    0          0     0    0          0     0    0    0
+## 5     0      0      0    0          0     0    0          0     0    0    0
+## 6     0      0      0    0          0     0    0          0     0    0    0
+##   made line keep pocket print tts seem much black boot chest came especi sale
+## 1    0    0    0      0     0   0    0    0     0    0     0    0      0    0
+## 2    0    0    0      0     0   0    0    0     0    0     0    0      0    0
+## 3    0    0    0      0     0   0    0    0     0    0     0    0      0    0
+## 4    0    0    0      0     0   0    0    0     0    0     0    0      0    0
+## 5    0    0    0      0     0   0    0    0     0    0     0    0      0    0
+## 6    0    0    0      0     0   0    0    0     0    0     0    0      0    0
+##   price now enough problem purchas size_small fit_well cute receiv can put side
+## 1     0   0      0       0       0          0        0    0      0   0   0    0
+## 2     0   0      0       0       0          0        0    0      0   0   0    0
+## 3     0   0      0       0       0          0        0    0      0   0   0    0
+## 4     0   0      0       0       0          0        0    0      0   0   0    0
+## 5     0   0      0       0       0          0        0    0      0   0   0    0
+## 6     0   0      0       0       0          0        0    0      0   0   0    0
+##   figur way bodi still hip thought uniqu t open part well_made larg hem may
+## 1     0   0    0     0   0       0     0 0    0    0         0    0   0   0
+## 2     0   0    0     0   0       0     0 0    0    0         0    0   0   0
+## 3     0   0    0     0   0       0     0 0    0    0         0    0   0   0
+## 4     0   0    0     0   0       0     0 0    0    0         0    0   0   0
+## 5     0   0    0     0   0       0     0 0    0    0         0    0   0   0
+## 6     0   0    0     0   0       0     0 0    0    0         0    0   0   0
+##   blous wait come pattern drape thing skinni arm probabl button shoulder give
+## 1     0    0    0       0     0     0      0   0       0      0        0    0
+## 2     0    0    0       0     0     0      0   0       0      0        0    0
+## 3     0    0    0       0     0     0      0   0       0      0        0    0
+## 4     0    0    0       0     0     0      0   0       0      0        0    0
+## 5     0    0    0       0     0     0      0   0       0      0        0    0
+## 6     0    0    0       0     0     0      0   0       0      0        0    0
+##   slight fit_great day differ favorit jacket without detail weight 5&#39;4 comfi
+## 1      0         0   0      0       0      0       0      0      0   0     0
+## 2      0         0   0      0       0      0       0      0      0   0     0
+## 3      0         0   0      0       0      0       0      0      0   0     0
+## 4      0         0   0      0       0      0       0      0      0   0     0
+## 5      0         0   0      0       0      0       0      0      0   0     0
+## 6      0         0   0      0       0      0       0      0      0   0     0
+##   winter fit_true two stretch recommend true_size sad need photo saw 5&#39;3 wore
+## 1      0        0   0       0         0         0   0    0     0   0   0    0
+## 2      0        0   0       0         0         0   0    0     0   0   0    0
+## 3      0        0   0       0         0         0   0    0     0   0   0    0
+## 4      0        0   0       0         0         0   0    0     0   0   0    0
+## 5      0        0   0       0         0         0   0    0     0   0   0    0
+## 6      0        0   0       0         0         0   0    0     0   0   0    0
+##   tank piec yet felt cut wide refer expect thick love_top actual extra boxi
+## 1    0    0   0    0   0    0     0      0     0        0      0     0    0
+## 2    0    0   0    0   0    0     0      0     0        0      0     0    0
+## 3    0    0   0    0   0    0     0      0     0        0      0     0    0
+## 4    0    0   0    0   0    0     0      0     0        0      0     0    0
+## 5    0    0   0    0   0    0     0      0     0        0      0     0    0
+## 6    0    0   0    0   0    0     0      0     0        0      0     0    0
+##   warm size_fit shorter add anoth cloth neck amaz casual necklin unfortun might
+## 1    0        0       0   0     0     0    0    0      0       0        0     0
+## 2    0        0       0   0     0     0    0    0      0       0        0     0
+## 3    0        0       0   0     0     0    0    0      0       0        0     0
+## 4    0        0       0   0     0     0    0    0      0       0        0     0
+## 5    0        0       0   0     0     0    0    0      0       0        0     0
+## 6    0        0       0   0     0     0    0    0      0       0        0     0
+##   ador best m know hang lightweight howev surpris heavi flow run_larg green
+## 1    0    0 0    0    0           0     0       0     0    0        0     0
+## 2    0    0 0    0    0           0     0       0     0    0        0     0
+## 3    0    0 0    0    0           0     0       0     0    0        0     0
+## 4    0    0 0    0    0           0     0       0     0    0        0     0
+## 5    0    0 0    0    0           0     0       0     0    0        0     0
+## 6    0    0 0    0    0           0     0       0     0    0        0     0
+##   easi low mayb denim slim
+## 1    0   0    0     0    0
+## 2    0   0    0     0    0
+## 3    0   0    0     0    0
+## 4    0   0    0     0    0
+## 5    0   0    0     0    0
+## 6    0   0    0     0    0</code></pre>
+<pre class="r"><code>## Cleanup names
+names(reviewtokensdf)[names(reviewtokensdf) == &quot;review$Recommended.IND&quot;] &lt;- &quot;recommend&quot;
+names(reviewtokensdf)=make.names(names(reviewtokensdf))
+head(reviewtokensdf)</code></pre>
+<pre><code>##   recommend document absolut wonder comfort love pretti find store glad order
+## 1         1    text1       1      1       1    0      0    0     0    0     0
+## 2         1    text2       0      0       0    2      1    1     1    1     1
+## 3         0    text3       0      0       1    0      0    0     0    0     1
+## 4         1    text4       0      0       0    3      0    0     0    0     0
+## 5         1    text5       0      0       0    1      0    0     0    0     0
+## 6         0    text6       0      0       0    2      1    0     0    0     0
+##   onlin petit bought length hit just littl knee definit true high hope realli
+## 1     0     0      0      0   0    0     0    0       0    0    0    0      0
+## 2     1     3      1      1   1    1     1    1       1    1    0    0      0
+## 3     0     2      0      0   0    1     0    0       0    0    1    1      1
+## 4     0     0      0      0   0    0     0    0       0    0    0    0      0
+## 5     0     0      0      1   0    0     0    0       0    0    0    0      0
+## 6     0     1      0      0   0    2     0    0       0    0    0    0      0
+##   want work small usual size found medium overal top fit nice bottom tight
+## 1    0    0     0     0    0     0      0      0   0   0    0      0     0
+## 2    0    0     0     0    0     0      0      0   0   0    0      0     0
+## 3    1    1     3     1    1     1      1      1   1   1    1      1     1
+## 4    0    0     0     0    0     0      0      0   0   0    0      0     0
+## 5    0    0     0     0    0     0      0      0   0   0    0      0     0
+## 6    0    1     1     1    0     0      0      0   0   0    0      0     0
+##   layer well fall design wish tie around waist usual_size flat style like model
+## 1     0    0    0      0    0   0      0     0          0    0     0    0     0
+## 2     0    0    0      0    0   0      0     0          0    0     0    0     0
+## 3     3    0    0      1    0   0      0     0          1    0     0    0     0
+## 4     0    0    0      0    0   0      0     0          0    0     0    0     0
+## 5     0    1    0      0    0   1      0     0          0    0     0    0     0
+## 6     0    0    0      0    0   0      0     0          0    0     1    0     0
+##   get flatter look color fabric great qualiti person happi fun everi time wear
+## 1   0       0    0     0      0     0       0      0     0   0     0    0    0
+## 2   0       0    0     0      0     0       0      0     0   0     0    0    0
+## 3   0       0    0     0      0     0       0      0     0   0     0    0    0
+## 4   1       0    0     0      0     1       0      0     0   1     1    1    1
+## 5   0       1    0     0      0     0       0      0     0   0     0    0    1
+## 6   0       0    0     1      0     0       0      0     0   0     0    0    1
+##   compliment shirt front perfect leg pair jean wash show better navi almost
+## 1          0     0     0       0   0    0    0    0    0      0    0      0
+## 2          0     0     0       0   0    0    0    0    0      0    0      0
+## 3          0     0     0       0   0    0    0    0    0      0    0      0
+## 4          1     0     0       0   0    0    0    0    0      0    0      0
+## 5          0     2     1       1   1    1    0    0    0      0    0      0
+## 6          0     0     0       0   0    0    0    0    0      0    0      0
+##   someth white red loos dress one tall lot skirt long full take return sure
+## 1      0     0   0    0     0   0    0   0     0    0    0    0      0    0
+## 2      0     0   0    0     0   0    0   0     0    0    0    0      0    0
+## 3      0     0   0    0     0   0    0   0     0    0    0    0      0    0
+## 4      0     0   0    0     0   0    0   0     0    0    0    0      0    0
+## 5      0     0   0    0     0   0    0   0     0    0    0    0      0    0
+## 6      0     0   0    0     1   1    1   1     2    1    1    1      1    0
+##   usual_wear issu review good versatil worn short make underneath love_color
+## 1          0    0      0    0        0    0     0    0          0          0
+## 2          0    0      0    0        0    0     0    0          0          0
+## 3          0    0      0    0        0    0     0    0          0          0
+## 4          0    0      0    0        0    0     0    0          0          0
+## 5          0    0      0    0        0    0     0    0          0          0
+## 6          1    0      0    0        0    0     0    0          0          1
+##   see went gorgeous tri decid though said everyth pant look_like mani end worth
+## 1   0    0        0   0     0      0    0       0    0         0    0   0     0
+## 2   0    0        0   0     0      0    0       0    0         0    0   0     0
+## 3   0    0        0   0     0      0    0       0    0         0    0   0     0
+## 4   0    0        0   0     0      0    0       0    0         0    0   0     0
+## 5   0    0        0   0     0      0    0       0    0         0    0   0     0
+## 6   0    0        0   0     0      0    0       0    0         0    0   0     0
+##   got quit buy feel think alway use feel_like bit big sleev go sinc light
+## 1   0    0   0    0     0     0   0         0   0   0     0  0    0     0
+## 2   0    0   0    0     0     0   0         0   0   0     0  0    0     0
+## 3   0    0   0    0     0     0   0         0   0   0     0  0    0     0
+## 4   0    0   0    0     0     0   0         0   0   0     0  0    0     0
+## 5   0    0   0    0     0     0   0         0   0   0     0  0    0     0
+## 6   0    0   0    0     0     0   0         0   0   0     0  0    0     0
+##   pictur even huge sweater beauti will back tee soft thin summer area run
+## 1      0    0    0       0      0    0    0   0    0    0      0    0   0
+## 2      0    0    0       0      0    0    0   0    0    0      0    0   0
+## 3      0    0    0       0      0    0    0   0    0    0      0    0   0
+## 4      0    0    0       0      0    0    0   0    0    0      0    0   0
+## 5      0    0    0       0      0    0    0   0    0    0      0    0   0
+## 6      0    0    0       0      0    0    0   0    0    0      0    0   0
+##   larger normal snug bust say feminin retail fine room sheer bra easili
+## 1      0      0    0    0   0       0      0    0    0     0   0      0
+## 2      0      0    0    0   0       0      0    0    0     0   0      0
+## 3      0      0    0    0   0       0      0    0    0     0   0      0
+## 4      0      0    0    0   0       0      0    0    0     0   0      0
+## 5      0      0    0    0   0       0      0    0    0     0   0      0
+## 6      0      0    0    0   0       0      0    0    0     0   0      0
+##   order_size lbs typic regular smaller longer fit_perfect shape super flowi
+## 1          0   0     0       0       0      0           0     0     0     0
+## 2          0   0     0       0       0      0           0     0     0     0
+## 3          0   0     0       0       0      0           0     0     0     0
+## 4          0   0     0       0       0      0           0     0     0     0
+## 5          0   0     0       0       0      0           0     0     0     0
+## 6          0   0     0       0       0      0           0     0     0     0
+##   materi spring pull disappoint first year look_great right lace blue made line
+## 1      0      0    0          0     0    0          0     0    0    0    0    0
+## 2      0      0    0          0     0    0          0     0    0    0    0    0
+## 3      0      0    0          0     0    0          0     0    0    0    0    0
+## 4      0      0    0          0     0    0          0     0    0    0    0    0
+## 5      0      0    0          0     0    0          0     0    0    0    0    0
+## 6      0      0    0          0     0    0          0     0    0    0    0    0
+##   keep pocket print tts seem much black boot chest came especi sale price now
+## 1    0      0     0   0    0    0     0    0     0    0      0    0     0   0
+## 2    0      0     0   0    0    0     0    0     0    0      0    0     0   0
+## 3    0      0     0   0    0    0     0    0     0    0      0    0     0   0
+## 4    0      0     0   0    0    0     0    0     0    0      0    0     0   0
+## 5    0      0     0   0    0    0     0    0     0    0      0    0     0   0
+## 6    0      0     0   0    0    0     0    0     0    0      0    0     0   0
+##   enough problem purchas size_small fit_well cute receiv can put side figur way
+## 1      0       0       0          0        0    0      0   0   0    0     0   0
+## 2      0       0       0          0        0    0      0   0   0    0     0   0
+## 3      0       0       0          0        0    0      0   0   0    0     0   0
+## 4      0       0       0          0        0    0      0   0   0    0     0   0
+## 5      0       0       0          0        0    0      0   0   0    0     0   0
+## 6      0       0       0          0        0    0      0   0   0    0     0   0
+##   bodi still hip thought uniqu t open part well_made larg hem may blous wait
+## 1    0     0   0       0     0 0    0    0         0    0   0   0     0    0
+## 2    0     0   0       0     0 0    0    0         0    0   0   0     0    0
+## 3    0     0   0       0     0 0    0    0         0    0   0   0     0    0
+## 4    0     0   0       0     0 0    0    0         0    0   0   0     0    0
+## 5    0     0   0       0     0 0    0    0         0    0   0   0     0    0
+## 6    0     0   0       0     0 0    0    0         0    0   0   0     0    0
+##   come pattern drape thing skinni arm probabl button shoulder give slight
+## 1    0       0     0     0      0   0       0      0        0    0      0
+## 2    0       0     0     0      0   0       0      0        0    0      0
+## 3    0       0     0     0      0   0       0      0        0    0      0
+## 4    0       0     0     0      0   0       0      0        0    0      0
+## 5    0       0     0     0      0   0       0      0        0    0      0
+## 6    0       0     0     0      0   0       0      0        0    0      0
+##   fit_great day differ favorit jacket without detail weight X5.4 comfi winter
+## 1         0   0      0       0      0       0      0      0    0     0      0
+## 2         0   0      0       0      0       0      0      0    0     0      0
+## 3         0   0      0       0      0       0      0      0    0     0      0
+## 4         0   0      0       0      0       0      0      0    0     0      0
+## 5         0   0      0       0      0       0      0      0    0     0      0
+## 6         0   0      0       0      0       0      0      0    0     0      0
+##   fit_true two stretch recommend true_size sad need photo saw X5.3 wore tank
+## 1        0   0       0         0         0   0    0     0   0    0    0    0
+## 2        0   0       0         0         0   0    0     0   0    0    0    0
+## 3        0   0       0         0         0   0    0     0   0    0    0    0
+## 4        0   0       0         0         0   0    0     0   0    0    0    0
+## 5        0   0       0         0         0   0    0     0   0    0    0    0
+## 6        0   0       0         0         0   0    0     0   0    0    0    0
+##   piec yet felt cut wide refer expect thick love_top actual extra boxi warm
+## 1    0   0    0   0    0     0      0     0        0      0     0    0    0
+## 2    0   0    0   0    0     0      0     0        0      0     0    0    0
+## 3    0   0    0   0    0     0      0     0        0      0     0    0    0
+## 4    0   0    0   0    0     0      0     0        0      0     0    0    0
+## 5    0   0    0   0    0     0      0     0        0      0     0    0    0
+## 6    0   0    0   0    0     0      0     0        0      0     0    0    0
+##   size_fit shorter add anoth cloth neck amaz casual necklin unfortun might ador
+## 1        0       0   0     0     0    0    0      0       0        0     0    0
+## 2        0       0   0     0     0    0    0      0       0        0     0    0
+## 3        0       0   0     0     0    0    0      0       0        0     0    0
+## 4        0       0   0     0     0    0    0      0       0        0     0    0
+## 5        0       0   0     0     0    0    0      0       0        0     0    0
+## 6        0       0   0     0     0    0    0      0       0        0     0    0
+##   best m know hang lightweight howev surpris heavi flow run_larg green easi low
+## 1    0 0    0    0           0     0       0     0    0        0     0    0   0
+## 2    0 0    0    0           0     0       0     0    0        0     0    0   0
+## 3    0 0    0    0           0     0       0     0    0        0     0    0   0
+## 4    0 0    0    0           0     0       0     0    0        0     0    0   0
+## 5    0 0    0    0           0     0       0     0    0        0     0    0   0
+## 6    0 0    0    0           0     0       0     0    0        0     0    0   0
+##   mayb denim slim
+## 1    0     0    0
+## 2    0     0    0
+## 3    0     0    0
+## 4    0     0    0
+## 5    0     0    0
+## 6    0     0    0</code></pre>
+<pre class="r"><code>## Remove the original review.text column
+reviewtokensdf=reviewtokensdf[,-c(2)]
+head(reviewtokensdf)</code></pre>
+<pre><code>##   recommend absolut wonder comfort love pretti find store glad order onlin
+## 1         1       1      1       1    0      0    0     0    0     0     0
+## 2         1       0      0       0    2      1    1     1    1     1     1
+## 3         0       0      0       1    0      0    0     0    0     1     0
+## 4         1       0      0       0    3      0    0     0    0     0     0
+## 5         1       0      0       0    1      0    0     0    0     0     0
+## 6         0       0      0       0    2      1    0     0    0     0     0
+##   petit bought length hit just littl knee definit true high hope realli want
+## 1     0      0      0   0    0     0    0       0    0    0    0      0    0
+## 2     3      1      1   1    1     1    1       1    1    0    0      0    0
+## 3     2      0      0   0    1     0    0       0    0    1    1      1    1
+## 4     0      0      0   0    0     0    0       0    0    0    0      0    0
+## 5     0      0      1   0    0     0    0       0    0    0    0      0    0
+## 6     1      0      0   0    2     0    0       0    0    0    0      0    0
+##   work small usual size found medium overal top fit nice bottom tight layer
+## 1    0     0     0    0     0      0      0   0   0    0      0     0     0
+## 2    0     0     0    0     0      0      0   0   0    0      0     0     0
+## 3    1     3     1    1     1      1      1   1   1    1      1     1     3
+## 4    0     0     0    0     0      0      0   0   0    0      0     0     0
+## 5    0     0     0    0     0      0      0   0   0    0      0     0     0
+## 6    1     1     1    0     0      0      0   0   0    0      0     0     0
+##   well fall design wish tie around waist usual_size flat style like model get
+## 1    0    0      0    0   0      0     0          0    0     0    0     0   0
+## 2    0    0      0    0   0      0     0          0    0     0    0     0   0
+## 3    0    0      1    0   0      0     0          1    0     0    0     0   0
+## 4    0    0      0    0   0      0     0          0    0     0    0     0   1
+## 5    1    0      0    0   1      0     0          0    0     0    0     0   0
+## 6    0    0      0    0   0      0     0          0    0     1    0     0   0
+##   flatter look color fabric great qualiti person happi fun everi time wear
+## 1       0    0     0      0     0       0      0     0   0     0    0    0
+## 2       0    0     0      0     0       0      0     0   0     0    0    0
+## 3       0    0     0      0     0       0      0     0   0     0    0    0
+## 4       0    0     0      0     1       0      0     0   1     1    1    1
+## 5       1    0     0      0     0       0      0     0   0     0    0    1
+## 6       0    0     1      0     0       0      0     0   0     0    0    1
+##   compliment shirt front perfect leg pair jean wash show better navi almost
+## 1          0     0     0       0   0    0    0    0    0      0    0      0
+## 2          0     0     0       0   0    0    0    0    0      0    0      0
+## 3          0     0     0       0   0    0    0    0    0      0    0      0
+## 4          1     0     0       0   0    0    0    0    0      0    0      0
+## 5          0     2     1       1   1    1    0    0    0      0    0      0
+## 6          0     0     0       0   0    0    0    0    0      0    0      0
+##   someth white red loos dress one tall lot skirt long full take return sure
+## 1      0     0   0    0     0   0    0   0     0    0    0    0      0    0
+## 2      0     0   0    0     0   0    0   0     0    0    0    0      0    0
+## 3      0     0   0    0     0   0    0   0     0    0    0    0      0    0
+## 4      0     0   0    0     0   0    0   0     0    0    0    0      0    0
+## 5      0     0   0    0     0   0    0   0     0    0    0    0      0    0
+## 6      0     0   0    0     1   1    1   1     2    1    1    1      1    0
+##   usual_wear issu review good versatil worn short make underneath love_color
+## 1          0    0      0    0        0    0     0    0          0          0
+## 2          0    0      0    0        0    0     0    0          0          0
+## 3          0    0      0    0        0    0     0    0          0          0
+## 4          0    0      0    0        0    0     0    0          0          0
+## 5          0    0      0    0        0    0     0    0          0          0
+## 6          1    0      0    0        0    0     0    0          0          1
+##   see went gorgeous tri decid though said everyth pant look_like mani end worth
+## 1   0    0        0   0     0      0    0       0    0         0    0   0     0
+## 2   0    0        0   0     0      0    0       0    0         0    0   0     0
+## 3   0    0        0   0     0      0    0       0    0         0    0   0     0
+## 4   0    0        0   0     0      0    0       0    0         0    0   0     0
+## 5   0    0        0   0     0      0    0       0    0         0    0   0     0
+## 6   0    0        0   0     0      0    0       0    0         0    0   0     0
+##   got quit buy feel think alway use feel_like bit big sleev go sinc light
+## 1   0    0   0    0     0     0   0         0   0   0     0  0    0     0
+## 2   0    0   0    0     0     0   0         0   0   0     0  0    0     0
+## 3   0    0   0    0     0     0   0         0   0   0     0  0    0     0
+## 4   0    0   0    0     0     0   0         0   0   0     0  0    0     0
+## 5   0    0   0    0     0     0   0         0   0   0     0  0    0     0
+## 6   0    0   0    0     0     0   0         0   0   0     0  0    0     0
+##   pictur even huge sweater beauti will back tee soft thin summer area run
+## 1      0    0    0       0      0    0    0   0    0    0      0    0   0
+## 2      0    0    0       0      0    0    0   0    0    0      0    0   0
+## 3      0    0    0       0      0    0    0   0    0    0      0    0   0
+## 4      0    0    0       0      0    0    0   0    0    0      0    0   0
+## 5      0    0    0       0      0    0    0   0    0    0      0    0   0
+## 6      0    0    0       0      0    0    0   0    0    0      0    0   0
+##   larger normal snug bust say feminin retail fine room sheer bra easili
+## 1      0      0    0    0   0       0      0    0    0     0   0      0
+## 2      0      0    0    0   0       0      0    0    0     0   0      0
+## 3      0      0    0    0   0       0      0    0    0     0   0      0
+## 4      0      0    0    0   0       0      0    0    0     0   0      0
+## 5      0      0    0    0   0       0      0    0    0     0   0      0
+## 6      0      0    0    0   0       0      0    0    0     0   0      0
+##   order_size lbs typic regular smaller longer fit_perfect shape super flowi
+## 1          0   0     0       0       0      0           0     0     0     0
+## 2          0   0     0       0       0      0           0     0     0     0
+## 3          0   0     0       0       0      0           0     0     0     0
+## 4          0   0     0       0       0      0           0     0     0     0
+## 5          0   0     0       0       0      0           0     0     0     0
+## 6          0   0     0       0       0      0           0     0     0     0
+##   materi spring pull disappoint first year look_great right lace blue made line
+## 1      0      0    0          0     0    0          0     0    0    0    0    0
+## 2      0      0    0          0     0    0          0     0    0    0    0    0
+## 3      0      0    0          0     0    0          0     0    0    0    0    0
+## 4      0      0    0          0     0    0          0     0    0    0    0    0
+## 5      0      0    0          0     0    0          0     0    0    0    0    0
+## 6      0      0    0          0     0    0          0     0    0    0    0    0
+##   keep pocket print tts seem much black boot chest came especi sale price now
+## 1    0      0     0   0    0    0     0    0     0    0      0    0     0   0
+## 2    0      0     0   0    0    0     0    0     0    0      0    0     0   0
+## 3    0      0     0   0    0    0     0    0     0    0      0    0     0   0
+## 4    0      0     0   0    0    0     0    0     0    0      0    0     0   0
+## 5    0      0     0   0    0    0     0    0     0    0      0    0     0   0
+## 6    0      0     0   0    0    0     0    0     0    0      0    0     0   0
+##   enough problem purchas size_small fit_well cute receiv can put side figur way
+## 1      0       0       0          0        0    0      0   0   0    0     0   0
+## 2      0       0       0          0        0    0      0   0   0    0     0   0
+## 3      0       0       0          0        0    0      0   0   0    0     0   0
+## 4      0       0       0          0        0    0      0   0   0    0     0   0
+## 5      0       0       0          0        0    0      0   0   0    0     0   0
+## 6      0       0       0          0        0    0      0   0   0    0     0   0
+##   bodi still hip thought uniqu t open part well_made larg hem may blous wait
+## 1    0     0   0       0     0 0    0    0         0    0   0   0     0    0
+## 2    0     0   0       0     0 0    0    0         0    0   0   0     0    0
+## 3    0     0   0       0     0 0    0    0         0    0   0   0     0    0
+## 4    0     0   0       0     0 0    0    0         0    0   0   0     0    0
+## 5    0     0   0       0     0 0    0    0         0    0   0   0     0    0
+## 6    0     0   0       0     0 0    0    0         0    0   0   0     0    0
+##   come pattern drape thing skinni arm probabl button shoulder give slight
+## 1    0       0     0     0      0   0       0      0        0    0      0
+## 2    0       0     0     0      0   0       0      0        0    0      0
+## 3    0       0     0     0      0   0       0      0        0    0      0
+## 4    0       0     0     0      0   0       0      0        0    0      0
+## 5    0       0     0     0      0   0       0      0        0    0      0
+## 6    0       0     0     0      0   0       0      0        0    0      0
+##   fit_great day differ favorit jacket without detail weight X5.4 comfi winter
+## 1         0   0      0       0      0       0      0      0    0     0      0
+## 2         0   0      0       0      0       0      0      0    0     0      0
+## 3         0   0      0       0      0       0      0      0    0     0      0
+## 4         0   0      0       0      0       0      0      0    0     0      0
+## 5         0   0      0       0      0       0      0      0    0     0      0
+## 6         0   0      0       0      0       0      0      0    0     0      0
+##   fit_true two stretch recommend.1 true_size sad need photo saw X5.3 wore tank
+## 1        0   0       0           0         0   0    0     0   0    0    0    0
+## 2        0   0       0           0         0   0    0     0   0    0    0    0
+## 3        0   0       0           0         0   0    0     0   0    0    0    0
+## 4        0   0       0           0         0   0    0     0   0    0    0    0
+## 5        0   0       0           0         0   0    0     0   0    0    0    0
+## 6        0   0       0           0         0   0    0     0   0    0    0    0
+##   piec yet felt cut wide refer expect thick love_top actual extra boxi warm
+## 1    0   0    0   0    0     0      0     0        0      0     0    0    0
+## 2    0   0    0   0    0     0      0     0        0      0     0    0    0
+## 3    0   0    0   0    0     0      0     0        0      0     0    0    0
+## 4    0   0    0   0    0     0      0     0        0      0     0    0    0
+## 5    0   0    0   0    0     0      0     0        0      0     0    0    0
+## 6    0   0    0   0    0     0      0     0        0      0     0    0    0
+##   size_fit shorter add anoth cloth neck amaz casual necklin unfortun might ador
+## 1        0       0   0     0     0    0    0      0       0        0     0    0
+## 2        0       0   0     0     0    0    0      0       0        0     0    0
+## 3        0       0   0     0     0    0    0      0       0        0     0    0
+## 4        0       0   0     0     0    0    0      0       0        0     0    0
+## 5        0       0   0     0     0    0    0      0       0        0     0    0
+## 6        0       0   0     0     0    0    0      0       0        0     0    0
+##   best m know hang lightweight howev surpris heavi flow run_larg green easi low
+## 1    0 0    0    0           0     0       0     0    0        0     0    0   0
+## 2    0 0    0    0           0     0       0     0    0        0     0    0   0
+## 3    0 0    0    0           0     0       0     0    0        0     0    0   0
+## 4    0 0    0    0           0     0       0     0    0        0     0    0   0
+## 5    0 0    0    0           0     0       0     0    0        0     0    0   0
+## 6    0 0    0    0           0     0       0     0    0        0     0    0   0
+##   mayb denim slim
+## 1    0     0    0
+## 2    0     0    0
+## 3    0     0    0
+## 4    0     0    0
+## 5    0     0    0
+## 6    0     0    0</code></pre>
+<pre class="r"><code>reviewtokensdf$recommend=factor(reviewtokensdf$recommend)</code></pre>
+</div>
+<div id="cart-model" class="section level4">
+<h4>Cart Model</h4>
+<p>First, we will use the CART algorithm for classification. First the complete tree is built and the optimum cp value is identified for which the error is minimum. Then, this cp value is used to obain the pruned tree. The pruned tree is plotted to understand the classification.</p>
+<pre class="r"><code>## Build the CART model
+
+tree=rpart(formula = recommend ~ ., data = reviewtokensdf,
+           method=&quot;class&quot;, control=rpart.control(minsplit = 200, minbucket = 30, cp = 0.0001))
+
+printcp(tree)</code></pre>
+<pre><code>## 
+## Classification tree:
+## rpart(formula = recommend ~ ., data = reviewtokensdf, method = &quot;class&quot;, 
+##     control = rpart.control(minsplit = 200, minbucket = 30, cp = 1e-04))
+## 
+## Variables actually used in tree construction:
+##  [1] back       better     bit        can        color      comfort   
+##  [7] decid      disappoint enough     fabric     fit        go        
+## [13] great      huge       littl      look       look_like  love      
+## [19] materi     medium     model      nice       perfect    pretti    
+## [25] return     review     run        size       soft       tight     
+## [31] unfortun   want       will      
+## 
+## Root node error: 4172/23486 = 0.17764
+## 
+## n= 23486 
+## 
+##            CP nsplit rel error  xerror     xstd
+## 1  0.02492809      0   1.00000 1.00000 0.014040
+## 2  0.01893576      2   0.95014 0.95014 0.013759
+## 3  0.01078619      3   0.93121 0.93121 0.013649
+## 4  0.00575264      4   0.92042 0.92378 0.013605
+## 5  0.00383509      5   0.91467 0.91539 0.013555
+## 6  0.00359540      6   0.91083 0.91323 0.013542
+## 7  0.00335570     11   0.88998 0.91395 0.013546
+## 8  0.00287632     12   0.88663 0.90868 0.013515
+## 9  0.00239693     18   0.86697 0.90412 0.013487
+## 10 0.00215724     21   0.85978 0.89981 0.013461
+## 11 0.00167785     22   0.85762 0.89861 0.013454
+## 12 0.00143816     25   0.85259 0.89741 0.013447
+## 13 0.00119847     26   0.85115 0.90244 0.013477
+## 14 0.00059923     28   0.84875 0.90053 0.013466
+## 15 0.00051363     31   0.84660 0.90101 0.013468
+## 16 0.00035954     38   0.84300 0.89861 0.013454
+## 17 0.00034242     40   0.84228 0.89813 0.013451
+## 18 0.00014382     48   0.83797 0.90149 0.013471
+## 19 0.00010000     53   0.83725 0.90604 0.013499</code></pre>
+<pre class="r"><code>plotcp(tree)</code></pre>
+<p><img src="/post/2020-03-29-lasso-logistic-regression_files/figure-html/cart-model-1.png" width="70%" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>## Prune down the tree
+bestcp=tree$cptable[which.min(tree$cptable[,&quot;xerror&quot;]),&quot;CP&quot;]
+bestcp</code></pre>
+<pre><code>## [1] 0.001438159</code></pre>
+<pre class="r"><code>ptree=prune(tree,cp=bestcp)
+
+rpart.plot(ptree,cex = 0.6)</code></pre>
+<p><img src="/post/2020-03-29-lasso-logistic-regression_files/figure-html/cart-model-2.png" width="70%" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>prp(ptree, faclen = 0, cex = 0.5, extra = 2)</code></pre>
+<p><img src="/post/2020-03-29-lasso-logistic-regression_files/figure-html/cart-model-3.png" width="70%" style="display: block; margin: auto;" /></p>
+<p>AS can be seen from the tree plot, words like “return”, “disappoint”, “back”, “huge”, etc are used by unhappy customers – i.e., customers who do not recommend the product.</p>
+</div>
+<div id="random-forest" class="section level4">
+<h4>Random forest</h4>
+<p>Next, we use Random forest. We examine the varimp plot of the randomforest model to understand which words affect the classification the most.</p>
+<pre class="r"><code>reviewRF=randomForest(recommend~., data=reviewtokensdf)
+varImpPlot(reviewRF, cex=.7)</code></pre>
+<p>In sync with the CART model, the varimp plot of the Random forest model also indicates that “return”, and “disappoint” are the most important variables.</p>
+</div>
+<div id="lasso-logistic-regression" class="section level4">
+<h4>Lasso logistic Regression</h4>
+<p>The main challenge associated with text mining data frames is the very high number of columns or features.</p>
+<p>WE will use Regularisation using lasso for feature reduction.</p>
+<p>The odds ratio of the logistic regression model will throw several insights on classification.</p>
+<pre class="r"><code># requires library(glmnet)
+
+# convert training data to matrix format
+x &lt;- model.matrix(recommend~.,reviewtokensdf)
+
+# convert class to numerical variable
+y &lt;- as.numeric(reviewtokensdf$recommend)
+
+# perform grid search to find optimal value of lambda
+cv.out &lt;- cv.glmnet(x,y,alpha=1,family=&quot;binomial&quot;,type.measure = &quot;mse&quot;)
+
+# plot result
+plot(cv.out)</code></pre>
+<p><img src="/post/2020-03-29-lasso-logistic-regression_files/figure-html/lasso-logistic-regression-1.png" width="70%" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># min value of lambda
+lambda_min &lt;- cv.out$lambda.min
+
+# best value of lambda
+lambda_lse &lt;- cv.out$lambda.1se
+lambda_lse</code></pre>
+<pre><code>## [1] 0.002245081</code></pre>
+<pre class="r"><code># regression coefficients
+coef=coef(cv.out,s=lambda_lse)
+lassocoef=as.matrix(coef(cv.out,s=lambda_lse))
+write.csv(lassocoef, &quot;lasso_coef.csv&quot;)</code></pre>
+<p>Based on the lasso regression we arrive at the lambda_min that we need to use for the logistic regression.</p>
+<p>Features which we need not include in the model have a coef of zero.</p>
+<p>We write the coefficients to a csv file.</p>
+<p>The file is saved to the working directory.</p>
+<p>If we filter on the coef columns for zero (column B), we find that 84 of the 285 features (x variables) have a coef of zero – i.e., these have been removed by the lasso model.</p>
+<p>The reduced set of features is used to build the logistic regression model.</p>
+<p>We calculate the odds ratio from the coefficients of the logistic regression model:</p>
+<p><span class="math display">\[ Odds\: ratio\: = exp(coef(LR\: model)) \]</span></p>
+<p>The odds ratio is a very unique advantage of probability based models like logisticc regression. The odds ratio is used to understand the influence of various x variables in classification.</p>
+<pre class="r"><code># Find the best lambda using cross-validation
+set.seed(123)
+cv.lasso &lt;- cv.glmnet(x, y, alpha = 1, family = &quot;binomial&quot;)
+
+# Fit the final model on the dataframe
+review_logreg &lt;- glmnet(x, y, alpha = 1, family = &quot;binomial&quot;,
+                        lambda = cv.lasso$lambda.min)
+
+# Save the regression coef to a ccsv file
+logregcoef=as.matrix(coef(review_logreg))
+odds_ratio=as.matrix(exp(coef(review_logreg)))
+write.csv(logregcoef, &quot;logreg_coef.csv&quot;)
+write.csv(odds_ratio, &quot;odds_ratio.csv&quot;)</code></pre>
+<p>Again, we write to a csv file for better understanding.</p>
+<p>If the csv file for odds ratio is sorted based on the odds ratio (column B) in descending order, we can see the variables with the highest odds ratio</p>
+<p>The odds ratio is interpred as follows: A product which has “compliment” in its review has 5.61 times more odds to be recommended compared to a product review which does not have the word.</p>
+<p>We can examine the logreg_coef.csv file to understand variables with negative coefficients.</p>
+<p>The term “disappoint” has a negative coefficient indicating that, if the term is present in the review, the probability the product will be recommended is very low.</p>
+<p>The 3 classification models throw similar insights in terms of what terms are used by happy customers who will recommend a product vs those use by unhappy customers.</p>
+<p>These provide vital leads to improving product/service quality.</p>
+</div>
+<div id="conclusion" class="section level4">
+<h4>Conclusion</h4>
+<p>The article covers only the tip of the iceberg of the concepts of text mining.</p>
+<p>The main objective of the article is to get readers introducted to the concepts of text mining.</p>
+</div>

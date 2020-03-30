@@ -1,0 +1,10 @@
+# directories
+.Rproj.user/
+blogdown/
+public/
+
+.Rhistory
+.Rdata
+.Ruserdata
+.Rproj.user
+
