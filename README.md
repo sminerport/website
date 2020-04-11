@@ -1,3 +1,3 @@
 # Website
 
-https://www.scottminer.rbind.io
+scottminer.rbind.io
