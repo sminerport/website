@@ -26,7 +26,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     MathJaxVersion = "2.7.5"
 
     # path to the favicon, under "static"
-    favicon = "favicon2.ico"
+    favicon = "favicon.ico"
 
     [params.logo]
     url = "android-chrome-192x192.png"
