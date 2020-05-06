@@ -1,6 +1,6 @@
 baseurl = "/"
 languageCode = "en-us"
-title = "R Examples"
+title = "Just trying to change the logo"
 theme = "hugo-lithium"
 googleAnalytics = ""
 disqusShortname = ""
@@ -14,7 +14,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     url = "/post/"
 
 [params]
-    description = "A collection of R examples"
+    description = "Just trying to change the logo"
 
     # options for highlight.js (version, additional languages, and theme)
     highlightjsVersion = "9.12.0"
