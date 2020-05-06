@@ -29,7 +29,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     favicon = "favicon2.ico"
 
     [params.logo]
-    url = "android-chrome-192x192.png"
+    url = "new.png"
     width = 50
     height = 50
     alt = "Logo"
