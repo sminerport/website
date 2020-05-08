@@ -44,7 +44,7 @@ Figure 2 displays students' perceptions of admission services, while Figure 3 sh
 
 ![Figure 3. Students' perception of extracurricular services.  Reprinted from "Relationship between Admission, Extracurricular Services and Academic Achievement in Secondary Schools: A Partial Least Square (PLS) Approach," by Suleiman et al., 2016, Journal of Education and Practice, 7(8), p. 33.](/post/2020-05-08-partial-least-squares-pls-in-the-education-industry_files/Annotation 2020-05-07 223639.jpg){width=80% height=20%}
 
-The results indicate that students had a moderate level of perception of admission services, while students had a high opinion of extracurricular activities.  The results found a significant relationship between admission services and academic achievement, as well as a significant relationship between extracurricular activities (e.g., volleyball, basketball, and badminton) and academic achievement.  Admission services allow schools to identify qualified candidates for correct placement within the school system [@school].  
+The results indicate that students had a moderate level of perception of admission services and a high opinion of extracurricular activities.  The results found a significant relationship between admission services and academic achievement, as well as a significant relationship between extracurricular activities (e.g., volleyball, basketball, and badminton) and academic achievement.  Admission services allow schools to identify qualified candidates for correct placement within the school system [@school].  
 
 Consequently, this study presents two ways in which PLS is used within the education industry to affect decision making:
 
