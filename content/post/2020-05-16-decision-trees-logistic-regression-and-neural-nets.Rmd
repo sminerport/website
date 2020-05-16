@@ -26,7 +26,7 @@ p.caption {
 
 This week I am comparing three different predictive models: decision trees, regression, and neural nets.  @abbott describes artificial neural nets (ANNs) as being like linear regression and logistic regression in that they both require numeric inputs and cannot process missing records.
 
-Practitioners convert categorical data to dummy variables and use typical imputation methods to impute missing values.  The most common methodology to create dummy variables is to create one column for each value of the categorical variable less one.  For instance, if a categorical variables contains ten levels, create nine dummy variables [@abbott].
+Practitioners convert categorical data to dummy variables and use typical imputation methods to impute missing values.  The most common methodology for creating dummy variables is to create a single column for each value of the categorical variable minus one.  For instance, if a categorical variable contains ten levels, create nine dummy variables [@abbott].
 
 Decision trees, on the other hand, can process both nominal and numeric inputs.  Many decision tree algorithms process missing data autonomously.  Decision trees are non-parametric, meaning they make no assumptions about the distributions of the input variables or target variables.  Moreover, decision trees can process continuous variables that do not adhere to specific distributions and continuous variables that contain outliers [@abbott].
 
