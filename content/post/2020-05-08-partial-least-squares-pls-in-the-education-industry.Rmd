@@ -4,22 +4,21 @@ author: Scott Miner
 date: '2020-05-08'
 slug: partial-least-squares-pls-in-the-education-industry
 categories:
-  - Partial Least Squares
-  - PLS
-  - Education
+ - Partial Least Squares
+ - PLS
+ - Education
 tags:
-  - Partial Least Squares
-  - PLS
-  - Education
-bibliography: references.bib
+ - Partial Least Squares
+ - PLS
+ - Education
+bibliography: plsBib2.bib
 link-citations: true
-
 ---
 
 <style>
 p.caption {
-  font-size: 0.6em;
-  font-style: italic;
+ font-size: 0.6em;
+ font-style: italic;
 }
 </style>
 
@@ -27,34 +26,33 @@ p.caption {
 library(rmarkdown)
 library(knitr)
 library(pander)
-
 ```
 
-For the discussion topic this week, I will discuss three ways that partial least squares (PLS) are used within the education industry to aid in decision-making.  Also, I will discuss some of the reasons to use PLS regression instead of standard regression models.
+For the discussion topic this week, I will discuss three ways that partial least squares (PLS) are used within the education industry to aid in decision-making. Also, I will discuss some of the reasons to use PLS regression instead of standard regression models.
 
-@school conducted a study that investigates how student personnel services affect academic achievement in secondary schools in Kwara State, Nigeria.  The study involved a questionnaire distributed to 379 students, which recorded their responses on a four-point Likert scale (1-4), with reactions ranging from 'strongly disagree' to 'strongly agree.'  Additionally, the students' grades in five subjects (Math, English, Biology, Geography, and Economics) were used to determine academic achievement.
+@academicAchievement conducted a study that investigates how student personnel services affect academic achievement in secondary schools in Kwara State, Nigeria. The study involved a questionnaire distributed to 379 students, which recorded their responses on a four-point Likert scale (1-4), with reactions ranging from 'strongly disagree' to 'strongly agree.' Additionally, the students' grades in five subjects (Math, English, Biology, Geography, and Economics) were used to determine academic achievement.
 
-The study examined two independent variables, Admission Services, and Extracurricular Services, to determine their effect on the outcome variable, Academic Achievement.  Figure 1 displays the conceptual framework of the study.
+The study examined two independent variables, Admission Services, and Extracurricular Services, to determine their effect on the outcome variable, Academic Achievement. Figure 1 displays the conceptual framework of the study.
 
-![Figure 1. Conceptual framework on the correlation between admission, extracurricular services, and academic performance.  Reprinted from "Relationship between Admission, Extracurricular Services and Academic Achievement in Secondary Schools: A Partial Least Square (PLS) Approach," by Suleiman et al., 2016, Journal of Education and Practice, 7(8), p. 32.](/post/2020-05-08-partial-least-squares-pls-in-the-education-industry_files/Annotation 2020-05-07 222225.jpg){width=80% height=20%}
+![Figure 1. Conceptual framework on the correlation between admission, extracurricular services, and academic performance. Reprinted from "Relationship between Admission, Extracurricular Services and Academic Achievement in Secondary Schools: A Partial Least Square (PLS) Approach," by Suleiman et al., 2016, Journal of Education and Practice, 7(8), p. 32.](/post/2020-05-08-partial-least-squares-pls-in-the-education-industry_files/Annotation 2020-05-07 222225.jpg){width=80% height=20%}
 
 Figure 2 displays students' perceptions of admission services, while Figure 3 shows students' perceptions of extracurricular services.
 
-![Figure 2. Students' perception of admission services.  Reprinted from "Relationship between Admission, Extracurricular Services and Academic Achievement in Secondary Schools: A Partial Least Square (PLS) Approach," by Suleiman et al., 2016, Journal of Education and Practice, 7(8), p. 33.](/post/2020-05-08-partial-least-squares-pls-in-the-education-industry_files/Annotation 2020-05-07 223549.jpg){width=80% height=20%}
+![Figure 2. Students' perception of admission services. Reprinted from "Relationship between Admission, Extracurricular Services and Academic Achievement in Secondary Schools: A Partial Least Square (PLS) Approach," by Suleiman et al., 2016, Journal of Education and Practice, 7(8), p. 33.](/post/2020-05-08-partial-least-squares-pls-in-the-education-industry_files/Annotation 2020-05-07 223549.jpg){width=80% height=20%}
 
-![Figure 3. Students' perception of extracurricular services.  Reprinted from "Relationship between Admission, Extracurricular Services and Academic Achievement in Secondary Schools: A Partial Least Square (PLS) Approach," by Suleiman et al., 2016, Journal of Education and Practice, 7(8), p. 33.](/post/2020-05-08-partial-least-squares-pls-in-the-education-industry_files/Annotation 2020-05-07 223639.jpg){width=80% height=20%}
+![Figure 3. Students' perception of extracurricular services. Reprinted from "Relationship between Admission, Extracurricular Services and Academic Achievement in Secondary Schools: A Partial Least Square (PLS) Approach," by Suleiman et al., 2016, Journal of Education and Practice, 7(8), p. 33.](/post/2020-05-08-partial-least-squares-pls-in-the-education-industry_files/Annotation 2020-05-07 223639.jpg){width=80% height=20%}
 
-The results indicate that students had a moderate level of perception of admission services and a high opinion of extracurricular activities.  The results also reveal a significant relationship between admission services and academic achievement, as well as a significant relationship between extracurricular activities (e.g., volleyball, basketball, and [badminton](https://www.youtube.com/watch?v=aFGLXYcKD2M)) and academic achievement.  Admission services allow schools to identify qualified candidates for correct placement within the school system [@school].  
+The results indicate that students had a moderate level of perception of admission services and a high opinion of extracurricular activities. The results also reveal a significant relationship between admission services and academic achievement, as well as a significant relationship between extracurricular activities (e.g., volleyball, basketball, and [badminton](https://www.youtube.com/watch?v=aFGLXYcKD2M)) and academic achievement. Admission services allow schools to identify qualified candidates for correct placement within the school system [@academicAchievement].
 
 Consequently, this study presents two ways in which PLS is used within the education industry to affect decision making:
 
 * Is there a relationship between admission services and academic achievement?
-* Is there a relationship between extracurricular services and academic achievement? [@school].  
+* Is there a relationship between extracurricular services and academic achievement? [@academicAchievement].
 
-A third way we can use PLS to affect decision making within education is to determine whether these independent variables have any effect on retention rates, graduation rates, or persistence.  Additionally, we might consider other independent variables, such as the first-generation statuses of the students.
+A third way we can use PLS to affect decision making within education is to determine whether these independent variables have any effect on retention rates, graduation rates, or persistence. Additionally, we might consider other independent variables, such as the first-generation statuses of the students.
 
-Lastly, PLS regression allows for a small number of variables within the data to explain a lot of the variation.  PLS regression accounts for variation in both input variables and target variables.  Some original variables, not constructed components, are kept as inputs, and categorical input variables can be used [@sas].  Moreover, @school describe the software configuration of their study as being “free from any postulation in terms of multicollinearity, sample size, normality, missing values, etc.” (p. 32).
+Lastly, PLS regression allows for a small number of variables within the data to explain a lot of the variation. PLS regression accounts for variation in both input variables and target variables. Some original variables, not constructed components, are kept as inputs, and categorical input variables can be used [@advancedModeling]. Moreover, @academicAchievement describe the software configuration of their study as being “free from any postulation in terms of multicollinearity, sample size, normality, missing values, etc.” (p. 32).
 
-In conclusion, we have discussed three ways PLS can benefit decision making in education, and some of the benefits PLS regression offers over standard regression models. 
+In conclusion, we have discussed three ways PLS can benefit decision making in education, and some of the benefits PLS regression offers over standard regression models.
 
 # References
