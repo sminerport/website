@@ -3,7 +3,7 @@ languageCode = "en-us"
 title = "Data Science & Stuff"
 theme = "hugo-lithium"
 googleAnalytics = ""
-disqusShortname = ""
+disqusShortname = "data-science-stuff"
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 
 [permalinks]
