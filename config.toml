@@ -14,7 +14,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     url = "/post/"
 
 [params]
-    description = "Just trying to change the logo"
+    description = "Data Science & Stuff"
 
     # options for highlight.js (version, additional languages, and theme)
     highlightjsVersion = "9.12.0"
