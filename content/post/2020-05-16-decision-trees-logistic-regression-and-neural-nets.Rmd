@@ -1,5 +1,5 @@
 ---
-title: Decision Trees, Regression, and Neural Nets
+title: "A Brief Analysis of Predictive Models in Health Care"
 author: Scott Miner
 date: '2020-05-16'
 slug: decision-trees-logistic-regression-and-neural-nets
@@ -22,7 +22,7 @@ p.caption {
   font-size: 0.6em;
   font-style: italic;
 }
-</style>
+</style> 
 
 This week I am comparing three different predictive models: decision trees, regression, and neural nets.  @abbott describes artificial neural nets (ANNs) as being like linear regression and logistic regression in that they both require numeric inputs and cannot process missing records.
 
