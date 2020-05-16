@@ -51,18 +51,23 @@ code {
 .nav-logo {
   float: left;
   margin-top: -11px;
-  transition: transform 150ms ease-out;
+/*  transition: transform 500ms ease-out; */
+ -webkit-transition: -webkit-transform .4s ease-in-out;
+          transition:         transform .4s ease-in-out;
 }
 
 .nav-logo:hover {
   transform: scale(1.1);
+    -webkit-transform: rotate(1080deg);
+          transform: rotate(1080deg);
 }
 
 .nav-logo img {
   display: block;
   max-height: 40px;
   width: auto;
-  border-radius: 50%;
+  border-radius: 0%;
+   
 }
 
 .nav-links {
