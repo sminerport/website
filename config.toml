@@ -1,6 +1,6 @@
 baseurl = "/"
 languageCode = "en-us"
-title = "Just trying to change the logo"
+title = "Data Science & Stuff"
 theme = "hugo-lithium"
 googleAnalytics = ""
 disqusShortname = ""
