@@ -21,7 +21,7 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
     weight = 2	
 
 [params]
-    description = "Data Science & Stuff"
+    description = "Data Science Diary"
 
     # options for highlight.js (version, additional languages, and theme)
     highlightjsVersion = "9.12.0"
