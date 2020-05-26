@@ -9,7 +9,7 @@ I am a full-time graduate student at CSU-Global, seeking a Master of Science in 
 
 I am in an accelerated master’s program, meaning each of my courses is 8 weeks long, as opposed to the traditional 16-week courses you might find at a conventional college.  It is like being enrolled in summer school for two short years.  It truly feels like a 2-year long summer vacation (not really!).
 
-I once counted the pages I was supposed to read in a single week, and the number came out to 279 pages.  It has been like that since October of last year, which means for about 7-8 months now.  Because of this, I am not always able to update this site as much as I would like.
+I once counted the number of pages I was supposed to read in a single week, and the total came to 279 pages.  It has been like that since October of last year, which means for about 7-8 months now.  Because of this, I am not always able to update this site as much as I would like.
 
 Nevertheless, I have learned a lot.  I learned to create this website.  It was created with RStudio, GitHub, Netlify, and Hugo.  I have also learned Tableau, SAS University Edition, SAS Enterprise Miner, Python, the R language, Git, GitHub, Data Warehousing, Predictive Analytics, and much more! For a while, I knew not what to put on this website, before ultimately deciding to make it something like a memoir of my data science studies.
 
