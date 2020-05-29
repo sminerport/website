@@ -38,6 +38,6 @@ Moreover, the researchers compared the LR model to the ANN model using the Mean 
 
 The most common way to create regression models in SAS Enterprise Miner is to use the **Regression** tool, located on the **Model** tab.  The **Regression** node implements both linear and logistic regression, and the node determines the regression type based upon the target variable measurement level.  To create an LR model that selects input variables using stepwise selection and the *average squared error* on the validation data, practitioners choose the appropriate values in the **Model Selection** section of the properties panel [@advancedModeling].  Lastly, before implementing the regression model, practitioners can use the **Impute** node in SAS Enterprise Miner to impute missing values and the **Transform Variables** node to create dummy variables from categorical inputs [@sarma]. 
 
-In conclusion, modelers use regression modeling in predictive analytics to predict continuous target variables, as well as categorical variables, as shown in the case of logistic regression.  SAS Enterprise Miner has several methods to implement regression, the most common being the Regression node.  
+In conclusion, modelers use regression modeling in predictive analytics to predict continuous target variables, as well as categorical variables, as shown in the case of logistic regression.  SAS Enterprise Miner has several methods to implement regression, the most common being the **Regression** node.  
 
 # References
