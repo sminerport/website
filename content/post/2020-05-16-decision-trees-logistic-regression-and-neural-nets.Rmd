@@ -1,5 +1,5 @@
 ---
-title: "A Brief Analysis of Predictive Models in Health care"
+title: "A Brief Analysis of Predictive Models in Healthcare"
 author: Scott Miner
 date: '2020-05-16'
 slug: decision-trees-logistic-regression-and-neural-nets
