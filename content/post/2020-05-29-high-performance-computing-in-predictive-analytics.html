@@ -1,0 +1,71 @@
+---
+title: High-Performance Computing in Predictive Analytics
+author: Scott Miner
+date: '2020-05-29'
+slug: high-performance-computing-in-predictive-analytics
+categories:
+  - hadoop
+  - big data
+  - support vector machines
+  - SAS Enterprise Miner
+  - Cloud-Computing
+  - Map-Reduce
+tags:
+  - hadoop
+  - big data
+  - support vector machines
+  - SAS Enterprise Miner
+  - Cloud-Computing
+  - Map-Reduce
+bibliography: high-performance-computing.Bib
+link-citations: true
+---
+
+
+
+<style>
+p.caption {
+  font-size: 0.6em;
+  font-style: italic;
+}
+</style>
+<p>In this post I am discussing the need to use high-performance modeling nodes, such as high-performance Support Vector Machines (HPSVMs) and high-performance forests, in SAS Enterprise Miner. Why might modelers care to use high-performance modeling nodes? High-performance modeling nodes have been designed to benefit from parallel processing environments. <span class="citation">H. B. Barua (<a href="#ref-comprehensive" role="doc-biblioref">2019</a>)</span> describe how, with the advent of big data, the need for processing infrastructures that support parallelism has grown expeditiously. Figure 1 displays the rise in popularity of big data mining and cloud computing, according to Google Trends.</p>
+<div class="figure">
+<img src="/post/2020-05-29-high-performance-computing-in-predictive-analytics_files/Annotation%202020-05-28%20223553.jpg" alt="Figure 1. Popularity of big data and cloud computing compared to classical data mining. Reprinted from “A Comprehensive Survey on Cloud Data Mining (CDM) Frameworks and Algorithms,” by Barua, H. B., &amp; Mondal, K. C., 2019, ACM Computing Surveys, 52(5), p. (3)." style="width:80.0%;height:20.0%" />
+<p class="caption">Figure 1. Popularity of big data and cloud computing compared to classical data mining. Reprinted from “A Comprehensive Survey on Cloud Data Mining (CDM) Frameworks and Algorithms,” by Barua, H. B., &amp; Mondal, K. C., 2019, ACM Computing Surveys, 52(5), p. (3).</p>
+</div>
+<p>Cloud Data Mining (CDM) refers to using cloud computing to perform data mining tasks. What are some of the characteristics of CDM environments? <span class="citation">H. B. Barua (<a href="#ref-comprehensive" role="doc-biblioref">2019</a>)</span> define these as parallelism, distribution, and memory management. What exactly are parallelism and distribution? According to <span class="citation">H. B. Barua (<a href="#ref-comprehensive" role="doc-biblioref">2019</a>)</span>, data parallelism refers to executing subsets of tasks over each portion of a distributed dataset simultaneously. <em>N</em> number of nodes process pieces of a dataset concurrently, as opposed to serially. Then, the results are re-combined.</p>
+<p><span class="citation">W. Lian (<a href="#ref-cloudComp" role="doc-biblioref">2015</a>)</span> describe how the organization of high-performance parallel computers improve the efficiency, quality, speed, and accuracy with which modelers can analyze large datasets. Similarly, <span class="citation">S. Venugopal (<a href="#ref-dataGrids" role="doc-biblioref">2006</a>)</span> write that distributed data grids allow modelers to “discover, transfer, and manipulate large datasets” (p.3).</p>
+<p>Map-Reduce, introduced by Google in 2004, is a programming architecture that supports parallelism and a high degree of data distribution. Figure 2 provides an overview of the Map-reduce framework, which incorporates key-value pairs.</p>
+<div class="figure">
+<img src="/post/2020-05-29-high-performance-computing-in-predictive-analytics_files/Annotation%202020-05-28%20223517.jpg" alt="Figure 2. Overview of the Map-Reduce Framework. Reprinted from “A Comprehensive Survey on Cloud Data Mining (CDM) Frameworks and Algorithms,” by Barua, H. B., &amp; Mondal, K. C., 2019, ACM Computing Surveys, 52(5), p (8)." style="width:80.0%;height:20.0%" />
+<p class="caption">Figure 2. Overview of the Map-Reduce Framework. Reprinted from “A Comprehensive Survey on Cloud Data Mining (CDM) Frameworks and Algorithms,” by Barua, H. B., &amp; Mondal, K. C., 2019, ACM Computing Surveys, 52(5), p (8).</p>
+</div>
+<p>Using this framework, Google implements Geospatial analysis of raw data received from their satellites. Hadoop, which has as its backbone the Map-reduce architecture, is an open-source framework capable of utilizing parallelism.</p>
+<p>What are some additional applications of CDMs? A growing area of interest is the analysis of 2D and 3D space. <span class="citation">M. Pejovic (<a href="#ref-sparse" role="doc-biblioref">2018</a>)</span>, for instance, used lasso (Least Absolute Shrinkage and Selection Operator) regression to create 3D models of soil properties for spatial prediction. Their results show the lasso technique yielded improved accuracy over standard and stepwise regression.</p>
+<p>Now that we have discussed some characteristics of CDMs, what exactly are HPSVMs?</p>
+<p><span class="citation">F. O. Catak (<a href="#ref-cloudSVM" role="doc-biblioref">2012</a>)</span> describe HPSVMs as “non-probabilistic binary linear classifiers,” which, for a given set of inputs, predict “which of two possible classes forms the input” (p.3). <span class="citation">H. B. Barua (<a href="#ref-comprehensive" role="doc-biblioref">2019</a>)</span> additionally describe HPSVMs as supervised learning methods capable of classifying data objects in a linear or non-linear fashion.</p>
+<p>SVMs, therefore, receive training data as input, and, based on the features of the training data, predict to which class a given record belongs. One such example might be to predict an applicant’s credit rating (e.g., good or bad) based on input variables such as credit history, the purpose of the credit, or an applicant’s employment status. The advantages of HPSVMs, however, are genuinely realized when predicting a dichotomous target variable, using a large-scale distributed training dataset over a framework like Hadoop <span class="citation">(J. Georges <a href="#ref-sas" role="doc-biblioref">2017</a>.)</span></p>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references">
+<div id="ref-cloudSVM">
+<p>F. O. Catak, M. E. Balaban. 2012. “CloudSVM: Training an SVM Classifier in Cloud Computing Systems.” <em>Join International Conference on Pervasive Computing and the Networked World,</em> 57–68.</p>
+</div>
+<div id="ref-comprehensive">
+<p>H. B. Barua, K. C. Mondal. 2019. “A Comprehensive Survey on Cloud Data Mining (CDM) Frameworks and Algorithms.” <em>ACM Computing Surveys,</em> 52 (5): 1–62.</p>
+</div>
+<div id="ref-sas">
+<p>J. Georges, C. Andersson. 2017. <em>SAS Help Center: Overview of the Sas Enterprise Miner High-Performance Procedures.</em> Cary, NC: SAS Institute Inc. <a href="https://documentation.sas.com/?docsetId=emhpprcref&amp;docsetTarget=emhpprcref_intro_sect001.htm&amp;docsetVersion=14.2&amp;locale=en">https://documentation.sas.com/?docsetId=emhpprcref&amp;docsetTarget=emhpprcref_intro_sect001.htm&amp;docsetVersion=14.2&amp;locale=en</a>.</p>
+</div>
+<div id="ref-sparse">
+<p>M. Pejovic, G. B.M. Heuvelink, M. Nikolic. 2018. “Sparse Regression Interaction Models for Spatial Prediction of Soil Properties in 3D.” <em>Computers &amp; Geosciences,</em> 118: 1–13. <a href="https://doi.org/10.1016/j.cageo.2018.05.008">https://doi.org/10.1016/j.cageo.2018.05.008</a>.</p>
+</div>
+<div id="ref-dataGrids">
+<p>S. Venugopal, K. Ramamohanarao, R. Buyya. 2006. “A Taxonomy of Data Grids for Distributed Data Sharing, Management, and Processing.” <em>ACM Computing Surveys,</em> 38 (1): 3–es.</p>
+</div>
+<div id="ref-cloudComp">
+<p>W. Lian, J. Zhang, X. Zhu. 2015. “Cloud Computing Environments Parallel Data Mining Policy Research.” <em>Int. J. Grid Distrib. Comput,</em> 8 (4).</p>
+</div>
+</div>
+</div>

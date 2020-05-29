@@ -1,0 +1,54 @@
+---
+title: High-Performance Computing in Predictive Analytics
+author: Scott Miner
+date: '2020-05-29'
+slug: high-performance-computing-in-predictive-analytics
+categories:
+  - hadoop
+  - big data
+  - support vector machines
+  - SAS Enterprise Miner
+  - Cloud-Computing
+  - Map-Reduce
+tags:
+  - hadoop
+  - big data
+  - support vector machines
+  - SAS Enterprise Miner
+  - Cloud-Computing
+  - Map-Reduce
+bibliography: high-performance-computing.Bib
+link-citations: true
+---
+
+
+<style>
+p.caption {
+  font-size: 0.6em;
+  font-style: italic;
+}
+</style> 
+
+In this post I am discussing the need to use high-performance modeling nodes, such as high-performance Support Vector Machines (HPSVMs) and high-performance forests, in SAS Enterprise Miner.  Why might modelers care to use high-performance modeling nodes?  High-performance modeling nodes have been designed to benefit from parallel processing environments.  @comprehensive describe how, with the advent of big data, the need for processing infrastructures that support parallelism has grown expeditiously.  Figure 1 displays the rise in popularity of big data mining and cloud computing, according to Google Trends.
+
+![Figure 1. Popularity of big data and cloud computing compared to classical data mining.  Reprinted from "A Comprehensive Survey on Cloud Data Mining (CDM) Frameworks and Algorithms," by Barua, H. B., & Mondal, K. C., 2019, ACM Computing Surveys, 52(5), p. (3). ](/post/2020-05-29-high-performance-computing-in-predictive-analytics_files/Annotation 2020-05-28 223553.jpg){width=80% height=20%}
+
+Cloud Data Mining (CDM) refers to using cloud computing to perform data mining tasks.  What are some of the characteristics of CDM environments?  @comprehensive define these as parallelism, distribution, and memory management.  What exactly are parallelism and distribution? According to @comprehensive, data parallelism refers to executing subsets of tasks over each portion of a distributed dataset simultaneously.  *N* number of nodes process pieces of a dataset concurrently, as opposed to serially.  Then, the results are re-combined.
+
+@cloudComp describe how the organization of high-performance parallel computers improve the efficiency, quality, speed, and accuracy with which modelers can analyze large datasets. Similarly, @dataGrids write that distributed data grids allow modelers to “discover, transfer, and manipulate large datasets” (p.3).    
+
+Map-Reduce, introduced by Google in 2004, is a programming architecture that supports parallelism and a high degree of data distribution.  Figure 2 provides an overview of the Map-reduce framework, which incorporates key-value pairs.
+
+![Figure 2. Overview of the Map-Reduce Framework. Reprinted from “A Comprehensive Survey on Cloud Data Mining (CDM) Frameworks and Algorithms,” by Barua, H. B., & Mondal, K. C., 2019, ACM Computing Surveys, 52(5), p (8). ](/post/2020-05-29-high-performance-computing-in-predictive-analytics_files/Annotation 2020-05-28 223517.jpg){width=80% height=20%}
+
+Using this framework, Google implements Geospatial analysis of raw data received from their satellites.  Hadoop, which has as its backbone the Map-reduce architecture, is an open-source framework capable of utilizing parallelism. 
+
+What are some additional applications of CDMs? A growing area of interest is the analysis of 2D and 3D space.  @sparse, for instance, used lasso (Least Absolute Shrinkage and Selection Operator) regression to create 3D models of soil properties for spatial prediction.  Their results show the lasso technique yielded improved accuracy over standard and stepwise regression. 
+
+Now that we have discussed some characteristics of CDMs, what exactly are HPSVMs? 
+
+@cloudSVM describe HPSVMs as “non-probabilistic binary linear classifiers,” which, for a given set of inputs, predict “which of two possible classes forms the input” (p.3).  @comprehensive additionally describe HPSVMs as supervised learning methods capable of classifying data objects in a linear or non-linear fashion. 
+
+SVMs, therefore, receive training data as input, and, based on the features of the training data, predict to which class a given record belongs.  One such example might be to predict an applicant’s credit rating (e.g., good or bad) based on input variables such as credit history, the purpose of the credit, or an applicant’s employment status.  The advantages of HPSVMs, however, are genuinely realized when predicting a dichotomous target variable, using a large-scale distributed training dataset over a framework like Hadoop [@sas.]
+
+# References
