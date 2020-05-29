@@ -1,5 +1,5 @@
 ---
-title: Partial Least Squares (PLS) in the Education Industry
+title: Partial Least Squares (PLS) in Education
 author: Scott Miner
 date: '2020-05-08'
 slug: partial-least-squares-pls-in-the-education-industry
