@@ -1,0 +1,43 @@
+---
+title: Regression Modeling in Predictive Analytics
+author: Scott Miner
+date: '2020-05-25'
+slug: regression-modeling-in-predictive-analytics
+categories:
+  - Logistic Regression
+  - Linear Regression
+  - Predictive Analytics
+tags:
+  - Logistic Regression
+  - Linear Regression
+  - Predictive Analytics
+bibliography: Regression.Bib
+link-citations: true
+---
+
+<style>
+p.caption {
+  font-size: 0.6em;
+  font-style: italic;
+}
+</style> 
+
+This week I am discussing the use of regression modeling in predictive analytics.  Regression models predict continuous target variables, as opposed to categorical outcome variables.  Many categorical algorithms have regression counterparts, including k-NN, neural networks, support vector machines, and decision trees.  The most popular algorithm for solving regression problems is linear regression, which, even if you have no experience implementing predictive models, you may be familiar with if you have ever applied an Excel trend-line.  An Excel trend-line is simply a linear regression model in disguise, so to speak [@abbott].
+
+While modelers typically use linear regression to predict continuous target variables, modelers also use a form of linear regression known as logistic regression to predict discrete binary outcome variables.  The odds ratio, given by the equation `$\frac{P\left(1\right)}{1-P\left(1\right)}$` , is at the heart of logistic regression.  Logistic regression builds linear models of the *log* of the odds ratio.  For instance, the following equation shows the probability the target variable is equal to one: `$Pr\left(target=1\right)=\frac{1}{1+e^-\left(w_0+w_1\times x_1+w_2\times x_2+\ldots+w_n\times x_n\right)}$`.  Figure 1 displays a plot of this equation, known as the logistic curve.  The logistic curve is bounded by the range 0 to 1.  Contrast this with linear regression, which has unbounded predicted values [@abbott].
+
+![Figure 1. A plot of the logistic curve (Abbott, 2014, p.233)](/post/2020-05-25-regression-modeling-in-predictive-analytics_files/logistic-regression-curve.png){width=80% height=20%}
+
+@bahadir compared logistic regression (LR) to artificial neural networks (ANNs) to predict the likelihood that prospective elementary school mathematics teachers will enter postgraduate education.  The study sample consisted of 372 students from three different universities who were studying or had studied elementary school mathematics teaching.
+
+The target variable was the success of the elementary school mathematics teachers in being accepted into postgraduate education.  The input variables included grades in courses such as General Mathematics, Geometry, Algebra, and Problem Solving.  The researchers generated the LR model using SPSS 17.0.  The researchers found eleven variables to be statistically significant in predicting the outcome variable [@bahadir].
+
+Moreover, the researchers compared the LR model to the ANN model using the Mean Correct Classification Rate of predictive accuracies.  Figure 2 displays the results of this comparison.  The researchers found ANNs to be more accurate than LR models; ANNs produced a predictive accuracy of 93.02%, while LR yielded an overall accuracy of 90.75% [@bahadir].
+
+![Figure 2. Results from two different prediction methods.  Reprinted from "Using Neural Network and Logistic Regression Analysis to Predict Prospective Mathematics Teachers’ Academic Success upon Entering Graduate Education by E. Bahadir, 2016, Educational Sciences Theory and Practice, 16(3).](/post/2020-05-25-regression-modeling-in-predictive-analytics_files/results.jpg){width=80% height=20%}
+
+The most common way to create regression models in SAS Enterprise Miner is to use the **Regression** tool, located on the **Model** tab.  The **Regression** node implements both linear and logistic regression, and the node determines the regression type based upon the target variable measurement level.  To create an LR model that selects input variables using stepwise selection and the *average squared error* on the validation data, practitioners choose the appropriate values in the **Model Selection** section of the properties panel [@advancedModeling].  Lastly, before implementing the regression model, practitioners can use the **Impute** node in SAS Enterprise Miner to impute missing values and the **Transform Variables** node to create dummy variables from categorical inputs [@sarma]. 
+
+In conclusion, modelers use regression modeling in predictive analytics to predict continuous target variables, as well as categorical variables, as shown in the case of logistic regression.  SAS Enterprise Miner has several methods to implement regression, the most common being the Regression node.  
+
+# References

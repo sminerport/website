@@ -1,0 +1,57 @@
+---
+title: Regression Modeling in Predictive Analytics
+author: Scott Miner
+date: '2020-05-25'
+slug: regression-modeling-in-predictive-analytics
+categories:
+  - Logistic Regression
+  - Linear Regression
+  - Predictive Analytics
+tags:
+  - Logistic Regression
+  - Linear Regression
+  - Predictive Analytics
+bibliography: Regression.Bib
+link-citations: true
+---
+
+
+
+<style>
+p.caption {
+  font-size: 0.6em;
+  font-style: italic;
+}
+</style>
+<p>This week I am discussing the use of regression modeling in predictive analytics. Regression models predict continuous target variables, as opposed to categorical outcome variables. Many categorical algorithms have regression counterparts, including k-NN, neural networks, support vector machines, and decision trees. The most popular algorithm for solving regression problems is linear regression, which, even if you have no experience implementing predictive models, you may be familiar with if you have ever applied an Excel trend-line. An Excel trend-line is simply a linear regression model in disguise, so to speak <span class="citation">(Abbott <a href="#ref-abbott" role="doc-biblioref">2014</a>)</span>.</p>
+<p>While modelers typically use linear regression to predict continuous target variables, modelers also use a form of linear regression known as logistic regression to predict discrete binary outcome variables. The odds ratio, given by the equation <code>$\frac{P\left(1\right)}{1-P\left(1\right)}$</code> , is at the heart of logistic regression. Logistic regression builds linear models of the <em>log</em> of the odds ratio. For instance, the following equation shows the probability the target variable is equal to one: <code>$Pr\left(target=1\right)=\frac{1}{1+e^-\left(w_0+w_1\times x_1+w_2\times x_2+\ldots+w_n\times x_n\right)}$</code>. Figure 1 displays a plot of this equation, known as the logistic curve. The logistic curve is bounded by the range 0 to 1. Contrast this with linear regression, which has unbounded predicted values <span class="citation">(Abbott <a href="#ref-abbott" role="doc-biblioref">2014</a>)</span>.</p>
+<div class="figure">
+<img src="/post/2020-05-25-regression-modeling-in-predictive-analytics_files/logistic-regression-curve.png" alt="Figure 1. A plot of the logistic curve (Abbott, 2014, p.233)" style="width:80.0%;height:20.0%" />
+<p class="caption">Figure 1. A plot of the logistic curve (Abbott, 2014, p.233)</p>
+</div>
+<p><span class="citation">Bahadir (<a href="#ref-bahadir" role="doc-biblioref">2016</a>)</span> compared logistic regression (LR) to artificial neural networks (ANNs) to predict the likelihood that prospective elementary school mathematics teachers will enter postgraduate education. The study sample consisted of 372 students from three different universities who were studying or had studied elementary school mathematics teaching.</p>
+<p>The target variable was the success of the elementary school mathematics teachers in being accepted into postgraduate education. The input variables included grades in courses such as General Mathematics, Geometry, Algebra, and Problem Solving. The researchers generated the LR model using SPSS 17.0. The researchers found eleven variables to be statistically significant in predicting the outcome variable <span class="citation">(Bahadir <a href="#ref-bahadir" role="doc-biblioref">2016</a>)</span>.</p>
+<p>Moreover, the researchers compared the LR model to the ANN model using the Mean Correct Classification Rate of predictive accuracies. Figure 2 displays the results of this comparison. The researchers found ANNs to be more accurate than LR models; ANNs produced a predictive accuracy of 93.02%, while LR yielded an overall accuracy of 90.75% <span class="citation">(Bahadir <a href="#ref-bahadir" role="doc-biblioref">2016</a>)</span>.</p>
+<div class="figure">
+<img src="/post/2020-05-25-regression-modeling-in-predictive-analytics_files/results.jpg" alt="Figure 2. Results from two different prediction methods. Reprinted from &quot;Using Neural Network and Logistic Regression Analysis to Predict Prospective Mathematics Teachers’ Academic Success upon Entering Graduate Education by E. Bahadir, 2016, Educational Sciences Theory and Practice, 16(3)." style="width:80.0%;height:20.0%" />
+<p class="caption">Figure 2. Results from two different prediction methods. Reprinted from "Using Neural Network and Logistic Regression Analysis to Predict Prospective Mathematics Teachers’ Academic Success upon Entering Graduate Education by E. Bahadir, 2016, Educational Sciences Theory and Practice, 16(3).</p>
+</div>
+<p>The most common way to create regression models in SAS Enterprise Miner is to use the <strong>Regression</strong> tool, located on the <strong>Model</strong> tab. The <strong>Regression</strong> node implements both linear and logistic regression, and the node determines the regression type based upon the target variable measurement level. To create an LR model that selects input variables using stepwise selection and the <em>average squared error</em> on the validation data, practitioners choose the appropriate values in the <strong>Model Selection</strong> section of the properties panel <span class="citation">(J. Georges <a href="#ref-advancedModeling" role="doc-biblioref">2017</a>)</span>. Lastly, before implementing the regression model, practitioners can use the <strong>Impute</strong> node in SAS Enterprise Miner to impute missing values and the <strong>Transform Variables</strong> node to create dummy variables from categorical inputs <span class="citation">(Sarma <a href="#ref-sarma" role="doc-biblioref">2007</a>)</span>.</p>
+<p>In conclusion, modelers use regression modeling in predictive analytics to predict continuous target variables, as well as categorical variables, as shown in the case of logistic regression. SAS Enterprise Miner has several methods to implement regression, the most common being the Regression node.</p>
+<div id="references" class="section level1 unnumbered">
+<h1>References</h1>
+<div id="refs" class="references">
+<div id="ref-abbott">
+<p>Abbott, Dean. 2014. <em>Applied Predictive Analytics: Principles and Techniques for the Professional Data Analyst.</em> Indianapolis, IN: John Wiley &amp; Sons, Inc. <a href="https://platform.virdocs.com/r/s/0/doc/548149/sp/31052079/mi/115192870">https://platform.virdocs.com/r/s/0/doc/548149/sp/31052079/mi/115192870</a>.</p>
+</div>
+<div id="ref-bahadir">
+<p>Bahadir, E. 2016. “Using Neural Network and Logistic Regression Analysis to Predict Prospective Mathematics Teachers’ Academic Success Upon Entering Graduate Education.” <em>Educational Sciences: Theory and Practice,</em> 16 (3): 943–64.</p>
+</div>
+<div id="ref-advancedModeling">
+<p>J. Georges, C. Andersson. 2017. <em>Advanced Predictive Modeling Using SAS® Enterprise Miner™ Course Notes.</em> Cary, NC: SAS Institute Inc. <a href="https://coursecms.csuglobal.edu/file/af7b20c0-6082-49ee-8997-9bb3f672ea82/2/production/MIS530_ModuleLectures/media/MIS530_Advanced_Predictive_Modeling_Using_SAS_Enterprise_Miner_Course_Notes.pdf">https://coursecms.csuglobal.edu/file/af7b20c0-6082-49ee-8997-9bb3f672ea82/2/production/MIS530_ModuleLectures/media/MIS530_Advanced_Predictive_Modeling_Using_SAS_Enterprise_Miner_Course_Notes.pdf</a>.</p>
+</div>
+<div id="ref-sarma">
+<p>Sarma, K. S. 2007. <em>Variable Selection and Transformation of Variables in Sas® Enterprise Miner™ 5.2. 12.</em> Cary, NC: SAS Institute Inc.</p>
+</div>
+</div>
+</div>
