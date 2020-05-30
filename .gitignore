@@ -2,6 +2,7 @@
 .Rproj.user/
 blogdown/
 public/
+static/archive/
 
 .Rhistory
 .Rdata
