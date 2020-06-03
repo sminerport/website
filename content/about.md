@@ -3,6 +3,12 @@ date: "2016-05-05T21:48:51-07:00"
 title: About
 ---
 
-Master of Science Data Analytics (MSDA) Student @ CSU-Global (Online Accelerated Program).  Expected Graduation October 2021.  
+I am seeking a Master of Science in Data Analytics (MSDA) from CSU-Global.  I am in an accelerated online program.  My expected graduation date is October 2021.  I am planning to specialize in Artificial Intelligence (AI) and Machine Learning (ML).
 
-I don't think I'm really helping my cause (whatever it may be), by including my S.M. links in the menu bar.
+I have social media links in the menu bar, I am bad at using them.
+
+I think my site needs a new theme. I chose the simplest one when I set this up.
+
+
+
+
