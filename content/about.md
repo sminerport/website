@@ -8,7 +8,3 @@ Master of Science in Data Analytics (MSDA) @ CSU-Global.  I am in an online acce
 I have social media links in the menu bar, I am bad at using them.
 
 I think my site needs a new theme/layout. I chose the simplest one when I set this up.
-
-
-
-
