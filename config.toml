@@ -9,20 +9,19 @@ ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown$", "_files$", "_cache$"]
 [permalinks]
     post = "/:year/:month/:day/:slug/"
 
-
 [[menu.main]]
-    name = "Twitter"
-    url = "https://twitter.com/scottdatascienc"
-    weight = 2
+    name = "Posts"
+    url = "/post/"
+    weight = 1
 
 [[menu.main]]
     name = "GitHub"
     url = "https://github.com/sminerport"
-    weight = 1
+    weight = 2
 
 [[menu.main]]
-    name = "Posts"
-    url = "/post/"
+    name = "Twitter"
+    url = "https://twitter.com/scottdatascienc"
     weight = 3
 
 [[menu.main]]
